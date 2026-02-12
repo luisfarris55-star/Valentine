@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Valentine?</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --text: #f4f7ff;
+      --muted: rgba(244,247,255,0.75);
+      --accent: #ff6aa2;
+      --border: rgba(255,255,255,0.15);
+    }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #060914, var(--bg));
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      overflow: hidden;
+      padding: 18px;
+    }
+
+    .card {
+      width: min(640px, 95%);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+    }
+
+    h1 { margin: 0 0 10px; font-size: clamp(24px, 4.5vw, 34px); }
+    p  { margin: 0 0 14px; color: var(--muted); line-height: 1.45; }
+
+    .btns {
+      position: relative;
+      height: 120px;
+      margin-top: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 18px;
+      font-weight: 800;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      position: absolute;
+      transition: all 0.15s ease;
+      color: white;
+    }
+
+    .yes {
+      background: var(--accent);
+      left: 30%;
+      top: 40px;
+    }
+
+    .no {
+      background: rgba(255,255,255,0.10);
+      left: 55%;
+      top: 40px;
+    }
+
+    .hidden { display: none; }
+
+    .form {
+      text-align: left;
+      margin-top: 12px;
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 13px;
+      color: rgba(244,247,255,0.75);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    input {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.30);
+      color: white;
+      width: 100%;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .submitBtn {
+      position: static;
+      background: var(--accent);
+      border: 1px solid rgba(255,106,162,0.45);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 800;
+    }
+
+    .backBtn {
+      position: static;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-weight: 800;
+    }
+
+    .status {
+      margin-top: 10px;
+      font-size: 13px;
+      color: rgba(244,247,255,0.75);
+      min-height: 18px;
+    }
+
+    .note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(244,247,255,0.6);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Question 1 -->
+  <div class="card" id="screen1">
+    <h1>Will you be my valentine, Emma?</h1>
+    <p>Choose one 😊</p>
+    <div class="btns">
+      <button class="yes" id="yesBtn">Yes</button>
+      <button class="no" id="noBtn">No</button>
+    </div>
+  </div>
+
+  <!-- Yes Screen (2 questions) -->
+  <div class="card hidden" id="screenYes">
+    <h1>Perfect 💘</h1>
+    <p>Answer these real quick:</p>
+
+    <div class="form">
+      <div>
+        <label for="q1">1) What should we do when I see you next at Miami U.?</label>
+        <input id="q1" placeholder="Brick Street? Dinner? Walk around campus? Surprise me 👀" />
+      </div>
+
+      <div>
+        <label for="q2">2) Other than talking about James Franklin, is there anything else you wanted to do?</label>
+        <input id="q2" placeholder="Anything you’ve been wanting to do?" />
+      </div>
+
+      <div class="actions">
+        <button class="submitBtn" id="submitBtn" type="button">Submit</button>
+        <button class="backBtn" id="backBtn" type="button">Back</button>
+      </div>
+
+      <div class="status" id="status"></div>
+      <div class="note">(Submitting saves your answers so I can plan 😊)</div>
+    </div>
+  </div>
+
+  <!-- No Screen -->
+  <div class="card hidden" id="screenNo">
+    <h1>I think you pressed the wrong button? 😅</h1>
+    <p>Try again.</p>
+    <div class="actions" style="justify-content:center;">
+      <button class="submitBtn" id="tryAgainBtn" type="button">Go back</button>
+    </div>
+  </div>
+
+  <script>
+    const yesBtn = document.getElementById("yesBtn");
+    const noBtn = document.getElementById("noBtn");
+    const screen1 = document.getElementById("screen1");
+    const screenYes = document.getElementById("screenYes");
+    const screenNo = document.getElementById("screenNo");
+
+    const tryAgainBtn = document.getElementById("tryAgainBtn");
+    const backBtn = document.getElementById("backBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const statusEl = document.getElementById("status");
+
+    const q1 = document.getElementById("q1");
+    const q2 = document.getElementById("q2");
+
+    function show(el) {
+      screen1.classList.add("hidden");
+      screenYes.classList.add("hidden");
+      screenNo.classList.add("hidden");
+      el.classList.remove("hidden");
+    }
+
+    // YES path
+    yesBtn.addEventListener("click", () => {
+      show(screenYes);
+      q1.focus();
+    });
+
+    // NO path (if clicked somehow)
+    noBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      show(screenNo);
+    });
+
+    tryAgainBtn.addEventListener("click", () => show(screen1));
+    backBtn.addEventListener("click", () => show(screen1));
+
+    // Make NO run away
+    noBtn.addEventListener("mouseenter", () => {
+      const container = document.querySelector(".btns");
+      const maxX = container.offsetWidth - noBtn.offsetWidth;
+      const maxY = container.offsetHeight - noBtn.offsetHeight;
+
+      const randomX = Math.floor(Math.random() * Math.max(1, maxX));
+      const randomY = Math.floor(Math.random() * Math.max(1, maxY));
+
+      noBtn.style.left = randomX + "px";
+      noBtn.style.top = randomY + "px";
+    });
+
+    // ====== DATA COLLECTION (Google Sheets via Apps Script) ======
+    const GOOGLE_SCRIPT_WEB_APP_URL =
+      "https://script.google.com/macros/s/AKfycbx6A4QsmJYnFrAYI7ruua_SwkYeXh9eRGfNwJOlIRGljHUiaH6WUMxbbSXJmeru5efJRg/exec";
+
+    submitBtn.addEventListener("click", async () => {
+      const a1 = q1.value.trim();
+      const a2 = q2.value.trim();
+
+      if (!a1 || !a2) {
+        statusEl.textContent = "Fill out both answers 🙂";
+        return;
+      }
+
+      statusEl.textContent = "Submitting…";
+
+      try {
+        const payload = {
+          q1: a1,
+          q2: a2,
+          page: "valentine",
+          ts: new Date().toISOString()
+        };
+
+        // Using text/plain helps avoid CORS/preflight issues with Apps Script
+        const res = await fetch(GOOGLE_SCRIPT_WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error("Bad response");
+        statusEl.textContent = "Submitted 💌";
+      } catch (err) {
+        statusEl.textContent = "Couldn’t submit (check your Apps Script deployment access).";
+      }
+    });
+  </script>
+
+</body>
+</html>
+
+
